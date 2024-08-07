@@ -10,11 +10,16 @@ namespace ScreenSharingServer
     public partial class ServerForm : Form
     {
         private TcpListener server;
+        private TcpClient client;
         private NetworkStream networkStream;
 
         public ServerForm()
         {
             InitializeComponent();
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
             StartServer();
         }
 
@@ -22,9 +27,13 @@ namespace ScreenSharingServer
         {
             try
             {
-                server = new TcpListener(IPAddress.Any, 8000);
+                string ip = txt_IP.Text;
+                int port = int.Parse(txt_PORT.Text);
+                IPAddress ipAddress = IPAddress.Parse(ip);
+                server = new TcpListener(ipAddress, port);
                 server.Start();
                 server.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), server);
+                MessageBox.Show("Server started. Waiting for clients...");
             }
             catch (Exception ex)
             {
@@ -36,7 +45,7 @@ namespace ScreenSharingServer
         {
             try
             {
-                TcpClient client = server.EndAcceptTcpClient(ar);
+                client = server.EndAcceptTcpClient(ar);
                 networkStream = client.GetStream();
                 BeginReceive();
             }
@@ -68,15 +77,17 @@ namespace ScreenSharingServer
 
                 if (bytesRead > 0)
                 {
-                    using (MemoryStream ms = new MemoryStream(buffer, 0, bytesRead))
+                    pictureBoxScreen.Invoke((MethodInvoker)delegate
                     {
-                        Image img = Image.FromStream(ms);
-                        pictureBoxScreen.Invoke((MethodInvoker)delegate
+                        using (MemoryStream ms = new MemoryStream(buffer, 0, bytesRead))
                         {
+                            Image img = Image.FromStream(ms);
                             pictureBoxScreen.Image = img;
-                        });
-                    }
-                    BeginReceive(); // Continue receiving
+                            pictureBoxScreen.SizeMode = PictureBoxSizeMode.Zoom; // Maintain aspect ratio
+                            pictureBoxScreen.Size = GetScaledImageSize(img.Size, pictureBoxScreen.Size);
+                        }
+                    });
+                    BeginReceive();
                 }
             }
             catch (Exception ex)
@@ -85,11 +96,29 @@ namespace ScreenSharingServer
             }
         }
 
+        private Size GetScaledImageSize(Size imageSize, Size containerSize)
+        {
+            float aspectRatio = (float)imageSize.Width / imageSize.Height;
+            float containerAspectRatio = (float)containerSize.Width / containerSize.Height;
+            if (aspectRatio > containerAspectRatio)
+            {
+                return new Size(containerSize.Width, (int)(containerSize.Width / aspectRatio));
+            }
+            else
+            {
+                return new Size((int)(containerSize.Height * aspectRatio), containerSize.Height);
+            }
+        }
+
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (server != null)
             {
                 server.Stop();
+            }
+            if (client != null)
+            {
+                client.Close();
             }
         }
     }

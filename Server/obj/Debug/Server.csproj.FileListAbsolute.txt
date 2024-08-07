@@ -8,3 +8,13 @@ C:\Users\HOANG QUY\Desktop\ShareScreen\Server\bin\Debug\Server.pdb
 C:\Users\HOANG QUY\Desktop\ShareScreen\Server\obj\Debug\Server.exe
 C:\Users\HOANG QUY\Desktop\ShareScreen\Server\obj\Debug\Server.pdb
 C:\Users\HOANG QUY\Desktop\ShareScreen\Server\obj\Debug\ScreenSharingServer.ServerForm.resources
+C:\Users\nhuph\Downloads\Project\Server\bin\Debug\Server.exe.config
+C:\Users\nhuph\Downloads\Project\Server\bin\Debug\Server.exe
+C:\Users\nhuph\Downloads\Project\Server\bin\Debug\Server.pdb
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\ScreenSharingServer.ServerForm.resources
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.csproj.GenerateResource.cache
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.exe
+C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.pdb

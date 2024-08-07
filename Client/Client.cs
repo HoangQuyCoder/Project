@@ -10,27 +10,42 @@ namespace ScreenSharingClient
     {
         private TcpClient client;
         private NetworkStream networkStream;
+        private Timer timer;
 
         public ClientForm()
         {
             InitializeComponent();
         }
 
-        private void btnStartSharing_Click(object sender, EventArgs e)
+        private void btnConnect_Click(object sender, EventArgs e)
         {
             StartClient();
+        }
+
+        private void btnStartSharing_Click(object sender, EventArgs e)
+        {
+            if (client != null && networkStream != null)
+            {
+                timer = new Timer();
+                timer.Interval = 1000; // Send screenshot every second
+                timer.Tick += (s, ev) => SendScreenshot();
+                timer.Start();
+            }
+            else
+            {
+                MessageBox.Show("Please connect to a server first.");
+            }
         }
 
         private void StartClient()
         {
             try
             {
-                client = new TcpClient("127.0.0.1", 8000); // Kết nối tới server
+                string ip = txt_IP.Text;
+                int port = int.Parse(txt_PORT.Text);
+                client = new TcpClient(ip, port); // Connect to server
                 networkStream = client.GetStream();
-                Timer timer = new Timer();
-                timer.Interval = 1000; // Gửi ảnh mỗi giây
-                timer.Tick += (s, ev) => SendScreenshot();
-                timer.Start();
+                MessageBox.Show("Connected to server.");
             }
             catch (Exception ex)
             {
@@ -43,8 +58,10 @@ namespace ScreenSharingClient
             try
             {
                 Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-                Graphics g = Graphics.FromImage(bmp);
-                g.CopyFromScreen(0, 0, 0, 0, bmp.Size);
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, bmp.Size);
+                }
 
                 using (MemoryStream ms = new MemoryStream())
                 {
@@ -61,6 +78,10 @@ namespace ScreenSharingClient
 
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (timer != null)
+            {
+                timer.Stop();
+            }
             if (client != null)
             {
                 client.Close();
