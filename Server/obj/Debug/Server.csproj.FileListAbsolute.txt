@@ -18,3 +18,13 @@ C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.csproj.GenerateResource
 C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
 C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.exe
 C:\Users\nhuph\Downloads\Project\Server\obj\Debug\Server.pdb
+C:\Users\HOANG QUY\Desktop\Project\Server\bin\Debug\Server.exe.config
+C:\Users\HOANG QUY\Desktop\Project\Server\bin\Debug\Server.exe
+C:\Users\HOANG QUY\Desktop\Project\Server\bin\Debug\Server.pdb
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\ScreenSharingServer.ServerForm.resources
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.csproj.GenerateResource.cache
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.exe
+C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.pdb
