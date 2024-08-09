@@ -36,6 +36,7 @@
             this.btnStartSharing.Name = "btnStartSharing";
             this.btnStartSharing.Size = new System.Drawing.Size(120, 40);
             this.btnStartSharing.TabIndex = 5;
+            this.btnStartSharing.Enabled = false;
             this.btnStartSharing.Text = "Start Sharing";
             this.btnStartSharing.Click += new System.EventHandler(this.btnStartSharing_Click);
             // 
@@ -72,6 +73,7 @@
             this.btnDisconnect.Size = new System.Drawing.Size(100, 40);
             this.btnDisconnect.TabIndex = 4;
             this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.Enabled = false;
             this.btnDisconnect.UseVisualStyleBackColor = true;
             this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
@@ -82,6 +84,7 @@
             this.btnStopSharing.Size = new System.Drawing.Size(120, 40);
             this.btnStopSharing.TabIndex = 6;
             this.btnStopSharing.Text = "Stop Sharing";
+            this.btnStopSharing.Enabled = false;
             this.btnStopSharing.Click += new System.EventHandler(this.btnStopSharing_Click);
             // 
             // ClientForm

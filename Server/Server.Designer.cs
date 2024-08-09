@@ -34,7 +34,7 @@
             this.pictureBoxScreen.Location = new System.Drawing.Point(316, 13);
             this.pictureBoxScreen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBoxScreen.Name = "pictureBoxScreen";
-            this.pictureBoxScreen.Size = new System.Drawing.Size(928, 509);
+            this.pictureBoxScreen.Size = new System.Drawing.Size(942, 645);
             this.pictureBoxScreen.TabIndex = 0;
             this.pictureBoxScreen.TabStop = false;
             // 
@@ -57,6 +57,7 @@
             this.btn_Stop.Size = new System.Drawing.Size(112, 37);
             this.btn_Stop.TabIndex = 4;
             this.btn_Stop.Text = "Stop";
+            this.btn_Stop.Enabled = false;
             this.btn_Stop.UseVisualStyleBackColor = true;
             this.btn_Stop.Click += new System.EventHandler(this.btnStop_Click);
             // 
@@ -82,7 +83,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1270, 671);
+            this.ClientSize = new System.Drawing.Size(1337, 671);
             this.Controls.Add(this.btn_Stop);
             this.Controls.Add(this.txt_PORT);
             this.Controls.Add(this.txt_IP);

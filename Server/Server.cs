@@ -39,6 +39,10 @@ namespace ScreenSharingServer
                 server = new TcpListener(ipAddress, port);
                 server.Start();
                 BeginAcceptClient();
+                btn_Start.Enabled = false; // Vô hiệu hóa nút Start sau khi bắt đầu server
+                btn_Stop.Enabled = true;
+                txt_IP.Enabled = false; // Vô hiệu hóa ô nhập IP
+                txt_PORT.Enabled = false; // Vô hiệu hóa ô nhập Port
                 MessageBox.Show("Server started. Waiting for clients...");
             }
             catch (Exception ex)
@@ -70,7 +74,9 @@ namespace ScreenSharingServer
                     server.Stop();
                     server = null;
                 }
-
+                btn_Start.Enabled = true;
+                txt_IP.Enabled = true;
+                txt_PORT.Enabled = true;
                 MessageBox.Show("Server stopped and client connection closed.");
             }
             catch (Exception ex)

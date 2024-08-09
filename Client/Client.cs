@@ -30,53 +30,65 @@ namespace ScreenSharingClient
 
         private void DisconnectClient()
         {
-            if (timer != null)
+            try
             {
-                timer.Stop();
-                timer.Dispose();
-                timer = null;
-            }
+                if (timer != null)
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                    timer = null;
+                }
 
-            // Gửi tín hiệu ngừng chia sẻ tới server
-            if (networkStream != null)
-            {
-                try
+                // Gửi tín hiệu ngừng chia sẻ tới server
+                if (networkStream != null)
                 {
-                    byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
-                    networkStream.Write(stopSignal, 0, stopSignal.Length);
+                    try
+                    {
+                        byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
+                        networkStream.Write(stopSignal, 0, stopSignal.Length);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error sending stop signal: " + ex.Message);
+                    }
+                    finally
+                    {
+                        networkStream.Close();
+                        networkStream = null;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error sending stop signal: " + ex.Message);
-                }
-                finally
-                {
-                    networkStream.Close();
-                    networkStream = null;
-                }
-            }
 
-            if (client != null)
-            {
-                client.Close();
-                client = null;
-                MessageBox.Show("Disconnected from server.");
+                if (client != null)
+                {
+                    client.Close();
+                    client = null;
+                    btnConnect.Enabled = true;
+                    btnDisconnect.Enabled = false;
+                    btnStartSharing.Enabled = false;
+                    btnStopSharing.Enabled = false;
+                    txt_IP.Enabled = true;
+                    txt_PORT.Enabled = true;
+                    MessageBox.Show("Disconnected from server.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Not connected to the server.");
+                MessageBox.Show("Error disconnect client: " + ex.Message);
             }
         }
 
         private void btnStartSharing_Click(object sender, EventArgs e)
         {
-            if (client != null && networkStream != null)
+            try
             {
-                StartSharing();
+                if (client != null && networkStream != null)
+                {
+                    StartSharing();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Please connect to a server first.");
+                MessageBox.Show("Error startsharing client: " + ex.Message);
             }
         }
 
@@ -88,31 +100,41 @@ namespace ScreenSharingClient
                 timer.Interval = 1000; // Send screenshot every second
                 timer.Tick += (s, ev) => SendScreenshot();
                 timer.Start();
+                btnStartSharing.Enabled = false;
+                btnStopSharing.Enabled = true;
             }
         }
 
+        private void StopSharing()
+        {
+            try
+            {
+                if (timer != null)
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                    timer = null;
+
+                    // Send stop signal to server
+                    if (networkStream != null)
+                    {
+                        byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
+                        networkStream.Write(stopSignal, 0, stopSignal.Length);
+                    }
+                    btnStartSharing.Enabled = true;
+                    btnStopSharing.Enabled = false;
+                    MessageBox.Show("Screen sharing stopped.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error stopsharing client: " + ex.Message);
+            }
+        }
 
         private void btnStopSharing_Click(object sender, EventArgs e)
         {
-            if (timer != null)
-            {
-                timer.Stop();
-                timer.Dispose();
-                timer = null;
-
-                // Send stop signal to server
-                if (networkStream != null)
-                {
-                    byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
-                    networkStream.Write(stopSignal, 0, stopSignal.Length);
-                }
-
-                MessageBox.Show("Screen sharing stopped.");
-            }
-            else
-            {
-                MessageBox.Show("Screen sharing is not currently running.");
-            }
+            StopSharing();
         }
 
         private void ConnectClient()
@@ -123,6 +145,12 @@ namespace ScreenSharingClient
                 int port = int.Parse(txt_PORT.Text);
                 client = new TcpClient(ip, port); // Connect to server
                 networkStream = client.GetStream();
+
+                btnConnect.Enabled = false;
+                btnDisconnect.Enabled = true;
+                btnStartSharing.Enabled = true;
+                txt_IP.Enabled = false;
+                txt_PORT.Enabled = false;
                 MessageBox.Show("Connected to server.");
             }
             catch (Exception ex)
@@ -142,12 +170,12 @@ namespace ScreenSharingClient
                     StopSharing();
                     return;
                 }
-
                 // Chụp ảnh màn hình
-                Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+                Bitmap bmp = new Bitmap(1920, 1200);
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
-                    g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, bmp.Size);
+
+                    g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, new Size(bmp.Width, bmp.Height));
                 }
 
                 using (MemoryStream ms = new MemoryStream())
@@ -172,21 +200,6 @@ namespace ScreenSharingClient
                 StopSharing(); // Stop sharing on error
             }
         }
-
-        private void StopSharing()
-        {
-            if (timer != null)
-            {
-                timer.Stop();
-                timer.Dispose();
-                timer = null;
-            }
-
-            MessageBox.Show("Screen sharing stopped.");
-        }
-
-
-
 
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
