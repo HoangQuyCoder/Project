@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
@@ -9,13 +10,14 @@ namespace ScreenSharingClient
 {
     public partial class ClientForm : Form
     {
-        private TcpClient client;
-        private NetworkStream networkStream;
+        private UdpClient udpClient;
+        private IPEndPoint serverEndPoint;
         private Timer timer;
 
         public ClientForm()
         {
             InitializeComponent();
+            btnStopSharing.Enabled = false; // Initially disable the Stop Sharing button
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -32,36 +34,12 @@ namespace ScreenSharingClient
         {
             try
             {
-                if (timer != null)
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                    timer = null;
-                }
+                StopSharing(); // Ensure sharing is stopped before disconnecting
 
-                // Gửi tín hiệu ngừng chia sẻ tới server
-                if (networkStream != null)
+                if (udpClient != null)
                 {
-                    try
-                    {
-                        byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
-                        networkStream.Write(stopSignal, 0, stopSignal.Length);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error sending stop signal: " + ex.Message);
-                    }
-                    finally
-                    {
-                        networkStream.Close();
-                        networkStream = null;
-                    }
-                }
-
-                if (client != null)
-                {
-                    client.Close();
-                    client = null;
+                    udpClient.Close();
+                    udpClient = null;
                     btnConnect.Enabled = true;
                     btnDisconnect.Enabled = false;
                     btnStartSharing.Enabled = false;
@@ -73,35 +51,26 @@ namespace ScreenSharingClient
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error disconnect client: " + ex.Message);
+                MessageBox.Show("Error disconnecting client: " + ex.Message);
             }
         }
 
         private void btnStartSharing_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (client != null && networkStream != null)
-                {
-                    StartSharing();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error startsharing client: " + ex.Message);
-            }
+            StartSharing();
         }
 
         private void StartSharing()
         {
-            if (timer == null)
+            if (udpClient != null && timer == null)
             {
                 timer = new Timer();
-                timer.Interval = 1000; // Send screenshot every second
+                timer.Interval = 500; // Send screenshot every half second
                 timer.Tick += (s, ev) => SendScreenshot();
                 timer.Start();
-                btnStartSharing.Enabled = false;
-                btnStopSharing.Enabled = true;
+                btnStartSharing.Enabled = false; // Disable Start Sharing button
+                btnStopSharing.Enabled = true; // Enable Stop Sharing button
+                MessageBox.Show("Screen sharing started.");
             }
         }
 
@@ -115,20 +84,19 @@ namespace ScreenSharingClient
                     timer.Dispose();
                     timer = null;
 
-                    // Send stop signal to server
-                    if (networkStream != null)
+                    if (udpClient != null)
                     {
                         byte[] stopSignal = Encoding.ASCII.GetBytes("STOP_SHARING");
-                        networkStream.Write(stopSignal, 0, stopSignal.Length);
+                        udpClient.Send(stopSignal, stopSignal.Length, serverEndPoint);
                     }
-                    btnStartSharing.Enabled = true;
-                    btnStopSharing.Enabled = false;
+                    btnStartSharing.Enabled = true; // Enable Start Sharing button
+                    btnStopSharing.Enabled = false; // Disable Stop Sharing button
                     MessageBox.Show("Screen sharing stopped.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error stopsharing client: " + ex.Message);
+                MessageBox.Show("Error stopping screen sharing: " + ex.Message);
             }
         }
 
@@ -143,19 +111,47 @@ namespace ScreenSharingClient
             {
                 string ip = txt_IP.Text;
                 int port = int.Parse(txt_PORT.Text);
-                client = new TcpClient(ip, port); // Connect to server
-                networkStream = client.GetStream();
+                serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                udpClient = new UdpClient();
 
-                btnConnect.Enabled = false;
-                btnDisconnect.Enabled = true;
-                btnStartSharing.Enabled = true;
-                txt_IP.Enabled = false;
-                txt_PORT.Enabled = false;
-                MessageBox.Show("Connected to server.");
+                // Send a "PING" message to the server
+                byte[] pingMessage = Encoding.ASCII.GetBytes("PING");
+                udpClient.Send(pingMessage, pingMessage.Length, serverEndPoint);
+
+                // Set a timeout for receiving the response
+                udpClient.Client.ReceiveTimeout = 2000; // 2 seconds
+
+                try
+                {
+                    // Try to receive a "PONG" response from the server
+                    byte[] response = udpClient.Receive(ref serverEndPoint);
+                    string responseMessage = Encoding.ASCII.GetString(response);
+
+                    if (responseMessage == "PONG")
+                    {
+                        // Successfully connected
+                        btnConnect.Enabled = false;
+                        btnDisconnect.Enabled = true;
+                        btnStartSharing.Enabled = true;
+                        txt_IP.Enabled = false;
+                        txt_PORT.Enabled = false;
+                        MessageBox.Show("Connected to server.");
+                    }
+                    else
+                    {
+                        // Unexpected response
+                        MessageBox.Show("Unexpected response from server.");
+                    }
+                }
+                catch (SocketException)
+                {
+                    // Timeout or other network error
+                    MessageBox.Show("Failed to connect to server. Server may not be running.");
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error starting client: " + ex.Message);
+                MessageBox.Show("Error connecting client: " + ex.Message);
             }
         }
 
@@ -163,41 +159,34 @@ namespace ScreenSharingClient
         {
             try
             {
-                // Kiểm tra xem networkStream có được khởi tạo không
-                if (networkStream == null || !client.Connected)
-                {
-                    MessageBox.Show("Network stream is not initialized or the client is not connected.");
-                    StopSharing();
-                    return;
-                }
-                // Chụp ảnh màn hình
-                Bitmap bmp = new Bitmap(1920, 1200);
+                // Capture the screenshot
+                Bitmap bmp = new Bitmap(1920, 1080);
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
-
-                    g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, new Size(bmp.Width, bmp.Height));
+                    g.CopyFromScreen(0, 0, 0, 0, bmp.Size);
                 }
 
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg); // Using JPEG to reduce size
                     byte[] buffer = ms.ToArray();
 
-                    // Kiểm tra xem buffer có hợp lệ không
-                    if (buffer != null && buffer.Length > 0)
+                    int chunkSize = 65000; // Each chunk is 65 KB
+                    int totalChunks = (int)Math.Ceiling((double)buffer.Length / chunkSize);
+
+                    for (int i = 0; i < totalChunks; i++)
                     {
-                        networkStream.Write(buffer, 0, buffer.Length);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Screenshot data is empty.");
+                        int currentChunkSize = Math.Min(chunkSize, buffer.Length - (i * chunkSize));
+                        byte[] chunkData = new byte[currentChunkSize];
+                        Array.Copy(buffer, i * chunkSize, chunkData, 0, currentChunkSize);
+
+                        udpClient.Send(chunkData, chunkData.Length, serverEndPoint);
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error sending screenshot: " + ex.Message);
-                StopSharing(); // Stop sharing on error
             }
         }
 

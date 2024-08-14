@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ScreenSharingServer
 {
     public partial class ServerForm : Form
     {
-        private TcpListener server;
-        private TcpClient client;
-        private NetworkStream networkStream;
+        private UdpClient udpServer;
+        private IPEndPoint clientEndPoint;
+        private Thread listenerThread;
+        private bool isRunning;
 
         public ServerForm()
         {
@@ -36,13 +40,18 @@ namespace ScreenSharingServer
                 string ip = txt_IP.Text;
                 int port = int.Parse(txt_PORT.Text);
                 IPAddress ipAddress = IPAddress.Parse(ip);
-                server = new TcpListener(ipAddress, port);
-                server.Start();
-                BeginAcceptClient();
-                btn_Start.Enabled = false; // Vô hiệu hóa nút Start sau khi bắt đầu server
+                udpServer = new UdpClient(port);
+                clientEndPoint = new IPEndPoint(IPAddress.Any, port); // Listen from any client
+                isRunning = true;
+
+                listenerThread = new Thread(ListenForClients);
+                listenerThread.IsBackground = true;
+                listenerThread.Start();
+
+                btn_Start.Enabled = false; // Disable Start button after server starts
                 btn_Stop.Enabled = true;
-                txt_IP.Enabled = false; // Vô hiệu hóa ô nhập IP
-                txt_PORT.Enabled = false; // Vô hiệu hóa ô nhập Port
+                txt_IP.Enabled = false; // Disable IP input field
+                txt_PORT.Enabled = false; // Disable Port input field
                 MessageBox.Show("Server started. Waiting for clients...");
             }
             catch (Exception ex)
@@ -55,29 +64,25 @@ namespace ScreenSharingServer
         {
             try
             {
-                // Đóng kết nối client
-                if (client != null)
+                isRunning = false;
+
+                if (udpServer != null)
                 {
-                    client.Close();
-                    client = null;
+                    udpServer.Close();
+                    udpServer = null;
                 }
 
-                // Đóng mạng và server
-                if (networkStream != null)
+                if (listenerThread != null)
                 {
-                    networkStream.Close();
-                    networkStream = null;
+                    listenerThread.Join(); // Wait for the thread to finish
+                    listenerThread = null;
                 }
 
-                if (server != null)
-                {
-                    server.Stop();
-                    server = null;
-                }
                 btn_Start.Enabled = true;
+                btn_Stop.Enabled = false;
                 txt_IP.Enabled = true;
                 txt_PORT.Enabled = true;
-                MessageBox.Show("Server stopped and client connection closed.");
+                MessageBox.Show("Server stopped.");
             }
             catch (Exception ex)
             {
@@ -85,150 +90,75 @@ namespace ScreenSharingServer
             }
         }
 
-
-        private void BeginAcceptClient()
+        private void ListenForClients()
         {
             try
             {
-                server.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), server);
+                List<byte[]> imageChunks = new List<byte[]>();
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi bắt đầu lắng nghe client: " + ex.Message);
-            }
-        }
-
-        private void AcceptClient(IAsyncResult ar)
-        {
-            try
-            {
-                if (server == null)
+                while (isRunning)
                 {
-                    MessageBox.Show("Server is not initialized.");
-                    return;
-                }
+                    byte[] receivedData = udpServer.Receive(ref clientEndPoint);
+                    string receivedText = Encoding.ASCII.GetString(receivedData);
 
-                client = server.EndAcceptTcpClient(ar);
-
-                if (client != null)
-                {
-                    networkStream = client.GetStream();
-                    BeginReceive();
-                    BeginAcceptClient();
-                }
-                else
-                {
-                    MessageBox.Show("Failed to accept client connection.");
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // This can happen if the server is stopped while waiting for a connection
-                MessageBox.Show("Server has been stopped and cannot accept clients.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error accepting client: " + ex.Message);
-            }
-        }
-
-        private void BeginReceive()
-        {
-            try
-            {
-                if (networkStream != null)
-                {
-                    byte[] buffer = new byte[1024 * 1024 * 10]; // 10MB buffer
-                    networkStream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReceiveData), buffer);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error beginning to receive data: " + ex.Message);
-            }
-        }
-
-        private void ReceiveData(IAsyncResult ar)
-        {
-            try
-            {
-                if (networkStream == null)
-                {
-                    MessageBox.Show("Network stream is not initialized.");
-                    return;
-                }
-
-                if (client == null || !client.Connected)
-                {
-                    MessageBox.Show("Client is not connected.");
-                    return;
-                }
-
-                byte[] buffer = (byte[])ar.AsyncState;
-                if (buffer == null)
-                {
-                    MessageBox.Show("Received buffer is null.");
-                    return;
-                }
-
-                int bytesRead = networkStream.EndRead(ar);
-
-                if (bytesRead > 0)
-                {
-                    string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-
-                    if (receivedData == "STOP_SHARING")
+                    if (receivedText == "STOP_SHARING")
                     {
-                        pictureBoxScreen.Invoke((MethodInvoker)delegate
-                        {
-                            pictureBoxScreen.Image = null; // Clear the image
-                        });
+                        ClearImage();
+                        continue; // Skip further processing for stop signal
+                    }
+
+                    if (receivedText == "PING")
+                    {
+                        // Send back a "PONG" response
+                        byte[] pongMessage = Encoding.ASCII.GetBytes("PONG");
+                        udpServer.Send(pongMessage, pongMessage.Length, clientEndPoint);
                     }
                     else
                     {
-                        pictureBoxScreen.Invoke((MethodInvoker)delegate
-                        {
-                            using (MemoryStream ms = new MemoryStream(buffer, 0, bytesRead))
-                            {
-                                Image img = Image.FromStream(ms);
-                                pictureBoxScreen.Image = img;
-                                pictureBoxScreen.SizeMode = PictureBoxSizeMode.Zoom;
-                                pictureBoxScreen.Size = GetScaledImageSize(img.Size, pictureBoxScreen.Size);
-                            }
-                        });
-                    }
+                        imageChunks.Add(receivedData);
 
-                    BeginReceive();
+                        if (receivedData.Length < 65000) // Assume last chunk indicates end of image
+                        {
+                            ProcessImage(imageChunks);
+                            imageChunks.Clear(); // Clear chunks after processing the image
+                        }
+                    }
                 }
             }
-            catch (IOException)
+            catch (SocketException)
             {
-                // IOException xảy ra khi client ngắt kết nối
-                MessageBox.Show("Client disconnected.");
-                ResetConnection();
+                if (udpServer == null) return; // Server was closed
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error receiving data: " + ex.Message);
-                ResetConnection();
             }
         }
 
-        private void ResetConnection()
+        private void ProcessImage(List<byte[]> imageChunks)
         {
-            if (client != null)
-            {
-                client.Close();
-                client = null;
-            }
+            byte[] imageData = imageChunks.SelectMany(a => a).ToArray();
 
-            if (networkStream != null)
+            using (MemoryStream ms = new MemoryStream(imageData))
             {
-                networkStream.Close();
-                networkStream = null;
+                Image img = Image.FromStream(ms);
+                pictureBoxScreen.Invoke((MethodInvoker)delegate
+                {
+                    pictureBoxScreen.Image = img;
+                    pictureBoxScreen.SizeMode = PictureBoxSizeMode.Zoom;
+                    pictureBoxScreen.Size = GetScaledImageSize(img.Size, pictureBoxScreen.Size);
+                });
             }
         }
+
+        private void ClearImage()
+        {
+            pictureBoxScreen.Invoke((MethodInvoker)delegate
+            {
+                pictureBoxScreen.Image = null; // Clear current image
+            });
+        }
+
         private Size GetScaledImageSize(Size imageSize, Size containerSize)
         {
             float aspectRatio = (float)imageSize.Width / imageSize.Height;
