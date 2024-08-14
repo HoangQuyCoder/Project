@@ -194,5 +194,20 @@ namespace ScreenSharingClient
         {
             DisconnectClient();
         }
+
+        private void lbl_PORT_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ClientForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -178,5 +178,10 @@ namespace ScreenSharingServer
         {
             StopServer();
         }
+
+        private void ServerForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

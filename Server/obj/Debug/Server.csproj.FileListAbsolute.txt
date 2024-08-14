@@ -28,3 +28,13 @@ C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.csproj.GenerateResour
 C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
 C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.exe
 C:\Users\HOANG QUY\Desktop\Project\Server\obj\Debug\Server.pdb
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\bin\Debug\Server.exe.config
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\bin\Debug\Server.exe
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\bin\Debug\Server.pdb
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\ScreenSharingServer.ServerForm.resources
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.csproj.GenerateResource.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.exe
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Server\obj\Debug\Server.pdb

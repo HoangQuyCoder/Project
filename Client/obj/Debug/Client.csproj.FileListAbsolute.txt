@@ -27,3 +27,13 @@ C:\Users\HOANG QUY\Desktop\Project\Client\obj\Debug\Client.csproj.GenerateResour
 C:\Users\HOANG QUY\Desktop\Project\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
 C:\Users\HOANG QUY\Desktop\Project\Client\obj\Debug\Client.exe
 C:\Users\HOANG QUY\Desktop\Project\Client\obj\Debug\Client.pdb
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\bin\Debug\Client.exe.config
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\bin\Debug\Client.exe
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\bin\Debug\Client.pdb
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\ScreenSharingClient.ClientForm.resources
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.exe
+C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.pdb

@@ -35,10 +35,9 @@
             // 
             // pictureBoxScreen
             // 
-            this.pictureBoxScreen.Location = new System.Drawing.Point(80, 113);
-            this.pictureBoxScreen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pictureBoxScreen.Location = new System.Drawing.Point(71, 90);
             this.pictureBoxScreen.Name = "pictureBoxScreen";
-            this.pictureBoxScreen.Size = new System.Drawing.Size(798, 458);
+            this.pictureBoxScreen.Size = new System.Drawing.Size(919, 366);
             this.pictureBoxScreen.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBoxScreen.TabIndex = 0;
             this.pictureBoxScreen.TabStop = false;
@@ -46,9 +45,10 @@
             // btn_Start
             // 
             this.btn_Start.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Bold);
-            this.btn_Start.Location = new System.Drawing.Point(558, 20);
+            this.btn_Start.Location = new System.Drawing.Point(496, 16);
+            this.btn_Start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_Start.Name = "btn_Start";
-            this.btn_Start.Size = new System.Drawing.Size(120, 55);
+            this.btn_Start.Size = new System.Drawing.Size(107, 44);
             this.btn_Start.TabIndex = 3;
             this.btn_Start.Text = "Start";
             this.btn_Start.UseVisualStyleBackColor = false;
@@ -58,9 +58,11 @@
             // 
             this.btn_Stop.Enabled = false;
             this.btn_Stop.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Bold);
-            this.btn_Stop.Location = new System.Drawing.Point(758, 20);
+            this.btn_Stop.ForeColor = System.Drawing.Color.Red;
+            this.btn_Stop.Location = new System.Drawing.Point(674, 16);
+            this.btn_Stop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_Stop.Name = "btn_Stop";
-            this.btn_Stop.Size = new System.Drawing.Size(120, 55);
+            this.btn_Stop.Size = new System.Drawing.Size(107, 44);
             this.btn_Stop.TabIndex = 4;
             this.btn_Stop.Text = "Stop";
             this.btn_Stop.UseVisualStyleBackColor = false;
@@ -69,44 +71,47 @@
             // txt_IP
             // 
             this.txt_IP.Font = new System.Drawing.Font("Arial", 10F);
-            this.txt_IP.Location = new System.Drawing.Point(80, 40);
+            this.txt_IP.Location = new System.Drawing.Point(71, 32);
+            this.txt_IP.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txt_IP.Name = "txt_IP";
-            this.txt_IP.Size = new System.Drawing.Size(143, 30);
+            this.txt_IP.Size = new System.Drawing.Size(128, 27);
             this.txt_IP.TabIndex = 1;
             this.txt_IP.Text = "127.0.0.1";
             // 
             // txt_PORT
             // 
             this.txt_PORT.Font = new System.Drawing.Font("Arial", 10F);
-            this.txt_PORT.Location = new System.Drawing.Point(304, 40);
+            this.txt_PORT.Location = new System.Drawing.Point(270, 32);
+            this.txt_PORT.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txt_PORT.Name = "txt_PORT";
-            this.txt_PORT.Size = new System.Drawing.Size(157, 30);
+            this.txt_PORT.Size = new System.Drawing.Size(140, 27);
             this.txt_PORT.TabIndex = 2;
             this.txt_PORT.Text = "5000";
             // 
             // lbl_IP
             // 
             this.lbl_IP.Font = new System.Drawing.Font("Arial", 10F);
-            this.lbl_IP.Location = new System.Drawing.Point(80, 20);
+            this.lbl_IP.Location = new System.Drawing.Point(71, 16);
             this.lbl_IP.Name = "lbl_IP";
-            this.lbl_IP.Size = new System.Drawing.Size(100, 20);
+            this.lbl_IP.Size = new System.Drawing.Size(89, 16);
             this.lbl_IP.TabIndex = 5;
             this.lbl_IP.Text = "IP Address:";
             // 
             // lbl_PORT
             // 
             this.lbl_PORT.Font = new System.Drawing.Font("Arial", 10F);
-            this.lbl_PORT.Location = new System.Drawing.Point(300, 20);
+            this.lbl_PORT.Location = new System.Drawing.Point(267, 16);
             this.lbl_PORT.Name = "lbl_PORT";
-            this.lbl_PORT.Size = new System.Drawing.Size(100, 20);
+            this.lbl_PORT.Size = new System.Drawing.Size(89, 16);
             this.lbl_PORT.TabIndex = 6;
             this.lbl_PORT.Text = "Port:";
             // 
             // ServerForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1219, 653);
+            this.BackColor = System.Drawing.Color.PowderBlue;
+            this.ClientSize = new System.Drawing.Size(1084, 522);
             this.Controls.Add(this.lbl_PORT);
             this.Controls.Add(this.lbl_IP);
             this.Controls.Add(this.btn_Stop);
@@ -114,9 +119,11 @@
             this.Controls.Add(this.txt_IP);
             this.Controls.Add(this.btn_Start);
             this.Controls.Add(this.pictureBoxScreen);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "ServerForm";
             this.Text = "Screen Sharing Server";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ServerForm_FormClosing);
+            this.Load += new System.EventHandler(this.ServerForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxScreen)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
