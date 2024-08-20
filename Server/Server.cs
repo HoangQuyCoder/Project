@@ -17,10 +17,13 @@ namespace ScreenSharingServer
         private IPEndPoint clientEndPoint;
         private Thread listenerThread;
         private bool isRunning;
-
+        private Dictionary<IPEndPoint, PictureBox> clientPictureBoxes;
+        private Dictionary<IPEndPoint, Label> clientLabels;
         public ServerForm()
         {
             InitializeComponent();
+            clientPictureBoxes = new Dictionary<IPEndPoint, PictureBox>();
+            clientLabels = new Dictionary<IPEndPoint, Label>();
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -48,10 +51,10 @@ namespace ScreenSharingServer
                 listenerThread.IsBackground = true;
                 listenerThread.Start();
 
-                btn_Start.Enabled = false; // Disable Start button after server starts
+                btn_Start.Enabled = false;
                 btn_Stop.Enabled = true;
-                txt_IP.Enabled = false; // Disable IP input field
-                txt_PORT.Enabled = false; // Disable Port input field
+                txt_IP.Enabled = false; 
+                txt_PORT.Enabled = false;
                 MessageBox.Show("Server started. Waiting for clients...");
             }
             catch (Exception ex)
@@ -103,8 +106,9 @@ namespace ScreenSharingServer
 
                     if (receivedText == "STOP_SHARING")
                     {
-                        ClearImage();
-                        continue; // Skip further processing for stop signal
+                        ClearImage(clientEndPoint);
+                        imageChunks.Clear(); // Clear any partial image data
+                        continue;
                     }
 
                     if (receivedText == "PING")
@@ -115,12 +119,14 @@ namespace ScreenSharingServer
                     }
                     else
                     {
-                        imageChunks.Add(receivedData);
-
-                        if (receivedData.Length < 65000) // Assume last chunk indicates end of image
+                        if (IsEndOfImageChunk(receivedData))
                         {
                             ProcessImage(imageChunks);
                             imageChunks.Clear(); // Clear chunks after processing the image
+                        }
+                        else
+                        {
+                            imageChunks.Add(receivedData);
                         }
                     }
                 }
@@ -137,26 +143,87 @@ namespace ScreenSharingServer
 
         private void ProcessImage(List<byte[]> imageChunks)
         {
-            byte[] imageData = imageChunks.SelectMany(a => a).ToArray();
-
-            using (MemoryStream ms = new MemoryStream(imageData))
+            try
             {
-                Image img = Image.FromStream(ms);
-                pictureBoxScreen.Invoke((MethodInvoker)delegate
+                byte[] imageData = imageChunks.SelectMany(a => a).ToArray();
+
+                using (MemoryStream ms = new MemoryStream(imageData))
                 {
-                    pictureBoxScreen.Image = img;
-                    pictureBoxScreen.SizeMode = PictureBoxSizeMode.Zoom;
-                    pictureBoxScreen.Size = GetScaledImageSize(img.Size, pictureBoxScreen.Size);
-                });
+                    Image img = Image.FromStream(ms);
+                    if (flowLayoutPanel.InvokeRequired)
+                    {
+                        flowLayoutPanel.Invoke(new Action(() => UpdateClientImage(clientEndPoint, img)));
+                    }
+                    else
+                    {
+                        UpdateClientImage(clientEndPoint, img);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error processing image: " + ex.Message);
             }
         }
 
-        private void ClearImage()
+        private void UpdateClientImage(IPEndPoint clientEndPoint, Image img)
         {
-            pictureBoxScreen.Invoke((MethodInvoker)delegate
+            PictureBox clientPictureBox;
+
+            // Check PictureBox client
+            if (!clientPictureBoxes.TryGetValue(clientEndPoint, out clientPictureBox))
             {
-                pictureBoxScreen.Image = null; // Clear current image
-            });
+                clientPictureBox = new PictureBox
+                {
+                    Size = new Size(200, 150),
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Margin = new Padding(10)
+                };
+
+                clientPictureBox.Size = GetScaledImageSize(img.Size, clientPictureBox.Size);
+                flowLayoutPanel.Controls.Add(clientPictureBox);
+                clientPictureBoxes[clientEndPoint] = clientPictureBox;
+
+                // Create label for client
+                Label clientLabel = new Label
+                {
+                    Text = clientEndPoint.ToString(), // Display IP address and port
+                    AutoSize = true,
+                    Margin = new Padding(10)
+                };
+                flowLayoutPanel.Controls.Add(clientLabel);
+                clientLabels[clientEndPoint] = clientLabel; // Save label on the dictionary
+            }
+
+            clientPictureBox.Image = img; // Update images for client
+        }
+
+        private bool IsEndOfImageChunk(byte[] chunkData)
+        {
+            string dataAsString = Encoding.ASCII.GetString(chunkData);
+            return dataAsString.Contains("END_OF_IMAGE");
+        }
+
+        private void ClearImage(IPEndPoint clientEndPoint)
+        {
+            if (clientPictureBoxes.TryGetValue(clientEndPoint, out PictureBox pictureBox))
+            {
+                pictureBox.Invoke((MethodInvoker)delegate
+                {
+                    pictureBox.Image = null;
+                    flowLayoutPanel.Controls.Remove(pictureBox);
+                    clientPictureBoxes.Remove(clientEndPoint);
+                });
+            }
+
+            if (clientLabels.TryGetValue(clientEndPoint, out Label clientLabel))
+            {
+                clientLabel.Invoke((MethodInvoker)delegate
+                {
+                    flowLayoutPanel.Controls.Remove(clientLabel);
+                    clientLabels.Remove(clientEndPoint);
+                });
+            }
         }
 
         private Size GetScaledImageSize(Size imageSize, Size containerSize)
@@ -177,11 +244,6 @@ namespace ScreenSharingServer
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             StopServer();
-        }
-
-        private void ServerForm_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

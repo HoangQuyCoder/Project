@@ -37,3 +37,13 @@ C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Clien
 C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
 C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.exe
 C:\Users\DUNG HO\OneDrive\Máy tính\LapTrinhMang\Project\Client\obj\Debug\Client.pdb
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\bin\Debug\Client.exe.config
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\bin\Debug\Client.exe
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\bin\Debug\Client.pdb
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\ScreenSharingClient.ClientForm.resources
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.exe
+C:\Users\HOANG QUY\Desktop\UDP\Project\Client\obj\Debug\Client.pdb

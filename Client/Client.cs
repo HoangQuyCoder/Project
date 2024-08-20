@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ScreenSharingClient
@@ -12,12 +14,12 @@ namespace ScreenSharingClient
     {
         private UdpClient udpClient;
         private IPEndPoint serverEndPoint;
-        private Timer timer;
+        private Thread screenSharingThread;
+        private bool isSharing;
 
         public ClientForm()
         {
             InitializeComponent();
-            btnStopSharing.Enabled = false; // Initially disable the Stop Sharing button
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -30,47 +32,42 @@ namespace ScreenSharingClient
             DisconnectClient();
         }
 
-        private void DisconnectClient()
-        {
-            try
-            {
-                StopSharing(); // Ensure sharing is stopped before disconnecting
-
-                if (udpClient != null)
-                {
-                    udpClient.Close();
-                    udpClient = null;
-                    btnConnect.Enabled = true;
-                    btnDisconnect.Enabled = false;
-                    btnStartSharing.Enabled = false;
-                    btnStopSharing.Enabled = false;
-                    txt_IP.Enabled = true;
-                    txt_PORT.Enabled = true;
-                    MessageBox.Show("Disconnected from server.");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error disconnecting client: " + ex.Message);
-            }
-        }
-
         private void btnStartSharing_Click(object sender, EventArgs e)
         {
             StartSharing();
         }
 
+        private void btnStopSharing_Click(object sender, EventArgs e)
+        {
+            StopSharing();
+        }
+
         private void StartSharing()
         {
-            if (udpClient != null && timer == null)
+            try
             {
-                timer = new Timer();
-                timer.Interval = 500; // Send screenshot every half second
-                timer.Tick += (s, ev) => SendScreenshot();
-                timer.Start();
-                btnStartSharing.Enabled = false; // Disable Start Sharing button
-                btnStopSharing.Enabled = true; // Enable Stop Sharing button
-                MessageBox.Show("Screen sharing started.");
+                if (udpClient != null && screenSharingThread == null)
+                {
+                    isSharing = true;
+                    screenSharingThread = new Thread(() =>
+                    {
+                        while (isSharing)
+                        {
+                            SendScreenshot();
+                            Thread.Sleep(500); // Sleep for half a second between screenshots
+                        }
+                    });
+                    screenSharingThread.IsBackground = true;
+                    screenSharingThread.Start();
+
+                    btnStartSharing.Enabled = false; // Disable Start Sharing button
+                    btnStopSharing.Enabled = true; // Enable Stop Sharing button
+                    MessageBox.Show("Screen sharing started.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error starting screen sharing: " + ex.Message);
             }
         }
 
@@ -78,11 +75,11 @@ namespace ScreenSharingClient
         {
             try
             {
-                if (timer != null)
+                if (screenSharingThread != null)
                 {
-                    timer.Stop();
-                    timer.Dispose();
-                    timer = null;
+                    isSharing = false;
+                    screenSharingThread.Join(); // Wait for the thread to finish
+                    screenSharingThread = null;
 
                     if (udpClient != null)
                     {
@@ -100,10 +97,6 @@ namespace ScreenSharingClient
             }
         }
 
-        private void btnStopSharing_Click(object sender, EventArgs e)
-        {
-            StopSharing();
-        }
 
         private void ConnectClient()
         {
@@ -139,7 +132,6 @@ namespace ScreenSharingClient
                     }
                     else
                     {
-                        // Unexpected response
                         MessageBox.Show("Unexpected response from server.");
                     }
                 }
@@ -155,32 +147,62 @@ namespace ScreenSharingClient
             }
         }
 
-        private void SendScreenshot()
+        private void DisconnectClient()
         {
             try
             {
-                // Capture the screenshot
-                Bitmap bmp = new Bitmap(1920, 1080);
-                using (Graphics g = Graphics.FromImage(bmp))
+                StopSharing(); // Ensure sharing is stopped before disconnecting
+
+                if (udpClient != null)
                 {
-                    g.CopyFromScreen(0, 0, 0, 0, bmp.Size);
+                    udpClient.Close();
+                    udpClient = null;
+
+                    btnConnect.Enabled = true;
+                    txt_IP.Enabled = true;
+                    txt_PORT.Enabled = true;
+                    btnDisconnect.Enabled = false;
+                    btnStartSharing.Enabled = false;
+                    btnStopSharing.Enabled = false;
+                    MessageBox.Show("Disconnected from server.");
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error disconnecting client: " + ex.Message);
+            }
+        }
 
-                using (MemoryStream ms = new MemoryStream())
+        private void SendScreenshot()
+        {
+            try
+            {          
+                using (Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
                 {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg); // Using JPEG to reduce size
-                    byte[] buffer = ms.ToArray();
-
-                    int chunkSize = 65000; // Each chunk is 65 KB
-                    int totalChunks = (int)Math.Ceiling((double)buffer.Length / chunkSize);
-
-                    for (int i = 0; i < totalChunks; i++)
+                    using (Graphics g = Graphics.FromImage(bmp))
                     {
-                        int currentChunkSize = Math.Min(chunkSize, buffer.Length - (i * chunkSize));
-                        byte[] chunkData = new byte[currentChunkSize];
-                        Array.Copy(buffer, i * chunkSize, chunkData, 0, currentChunkSize);
+                         g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, new Size(bmp.Width,bmp.Height));
+                    }
 
-                        udpClient.Send(chunkData, chunkData.Length, serverEndPoint);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        bmp.Save(ms, ImageFormat.Jpeg);
+                        byte[] buffer = ms.ToArray();
+
+                        int chunkSize = 65000;
+                        int totalChunks = (int)Math.Ceiling((double)buffer.Length / chunkSize);
+
+                        for (int i = 0; i < totalChunks; i++)
+                        {
+                            int currentChunkSize = Math.Min(chunkSize, buffer.Length - (i * chunkSize));
+                            byte[] chunkData = new byte[currentChunkSize];
+                            Array.Copy(buffer, i * chunkSize, chunkData, 0, currentChunkSize);
+
+                            udpClient.Send(chunkData, chunkData.Length, serverEndPoint);
+                        }
+
+                        byte[] endMarker = Encoding.ASCII.GetBytes("END_OF_IMAGE");
+                        udpClient.Send(endMarker, endMarker.Length, serverEndPoint);
                     }
                 }
             }
@@ -192,22 +214,8 @@ namespace ScreenSharingClient
 
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            DisconnectClient();
-        }
-
-        private void lbl_PORT_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ClientForm_Load(object sender, EventArgs e)
-        {
-
+            StopSharing(); // Stop sharing if it is running
+            DisconnectClient(); // Disconnect the client
         }
     }
 }

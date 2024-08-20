@@ -21,6 +21,7 @@
         private System.Windows.Forms.Button btnStopSharing;
         private System.Windows.Forms.Label lbl_IP;
         private System.Windows.Forms.Label lbl_PORT;
+        private System.Windows.Forms.Label label1;
 
         private void InitializeComponent()
         {
@@ -98,6 +99,7 @@
             this.btnStopSharing.Name = "btnStopSharing";
             this.btnStopSharing.Size = new System.Drawing.Size(155, 42);
             this.btnStopSharing.TabIndex = 6;
+            btnStopSharing.Enabled = false;
             this.btnStopSharing.Text = "Stop Sharing";
             this.btnStopSharing.UseVisualStyleBackColor = true;
             this.btnStopSharing.Click += new System.EventHandler(this.btnStopSharing_Click);
@@ -119,7 +121,6 @@
             this.lbl_PORT.Size = new System.Drawing.Size(100, 20);
             this.lbl_PORT.TabIndex = 8;
             this.lbl_PORT.Text = "Port:";
-            this.lbl_PORT.Click += new System.EventHandler(this.lbl_PORT_Click);
             // 
             // label1
             // 
@@ -132,7 +133,6 @@
             this.label1.Size = new System.Drawing.Size(290, 32);
             this.label1.TabIndex = 9;
             this.label1.Text = "Screen-Sharing-App";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // ClientForm
             // 
@@ -150,12 +150,8 @@
             this.Name = "ClientForm";
             this.Text = "Screen Sharing Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientForm_FormClosing);
-            this.Load += new System.EventHandler(this.ClientForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
-
-        private System.Windows.Forms.Label label1;
     }
 }
