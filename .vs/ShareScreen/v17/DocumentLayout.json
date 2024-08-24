@@ -1,30 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\HOANG QUY\\Desktop\\Project\\",
+  "WorkspaceRootPath": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|c:\\users\\hoang quy\\desktop\\project\\server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|c:\\users\\hoang quy\\desktop\\nhom10-laptrinhungdungchiasemanhinh\\project\\server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|solutionrelative:server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|C:\\Users\\HOANG QUY\\Desktop\\Project\\server\\server.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|solutionrelative:server\\server.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|solutionrelative:client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|C:\\Users\\HOANG QUY\\Desktop\\Project\\server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|solutionrelative:server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Project\\client\\client.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\client\\client.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|solutionrelative:client\\client.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Project\\client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|solutionrelative:client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|C:\\Users\\HOANG QUY\\Desktop\\Project\\client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0E5AD952-5A15-43F7-9A9A-CFB847EDEB83}|Client\\Client.csproj|solutionrelative:client\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\server\\server.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|solutionrelative:server\\server.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{960CF787-199C-4885-8EFF-1D4CDF77AEE7}|Server\\Server.csproj|solutionrelative:server\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -54,35 +54,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "Client.cs",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.cs",
               "RelativeDocumentMoniker": "Client\\Client.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.cs",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.cs",
               "RelativeToolTip": "Client\\Client.cs",
-              "ViewState": "AQIAAAUAAAAAAAAAAAAAAA8AAAAqAAAA",
+              "ViewState": "AQIAADkAAAAAAAAAAAAqwD8AAABFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-05T14:13:10.557Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "Client.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.Designer.cs",
               "RelativeDocumentMoniker": "Client\\Client.Designer.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.Designer.cs",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.Designer.cs",
               "RelativeToolTip": "Client\\Client.Designer.cs",
-              "ViewState": "AQIAABAAAAAAAAAAAAAuwBgAAAAAAAAA",
+              "ViewState": "AQIAAIQAAAAAAAAAAAAYwJAAAAAhAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-05T14:34:11.871Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "Client.cs [Design]",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.cs",
               "RelativeDocumentMoniker": "Client\\Client.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Client\\Client.cs [Design]",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Client\\Client.cs [Design]",
               "RelativeToolTip": "Client\\Client.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-08T08:44:34.35Z"
@@ -91,22 +91,22 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Server.cs",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.cs",
               "RelativeDocumentMoniker": "Server\\Server.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.cs",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.cs",
               "RelativeToolTip": "Server\\Server.cs",
-              "ViewState": "AQIAAJ8AAAAAAAAAAAAgwEsAAAARAAAA",
+              "ViewState": "AQIAAH4AAAAAAAAAAAAAwJQAAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-05T14:13:32.511Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Server.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.Designer.cs",
               "RelativeDocumentMoniker": "Server\\Server.Designer.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.Designer.cs",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.Designer.cs",
               "RelativeToolTip": "Server\\Server.Designer.cs",
               "ViewState": "AQIAACQAAAAAAAAAAAAYwA8AAAA2AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -114,11 +114,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "Server.cs [Design]",
-              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.cs",
+              "DocumentMoniker": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.cs",
               "RelativeDocumentMoniker": "Server\\Server.cs",
-              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Project\\Server\\Server.cs [Design]",
+              "ToolTip": "C:\\Users\\HOANG QUY\\Desktop\\Nhom10-LapTrinhUngDungChiaSeManHinh\\Project\\Server\\Server.cs [Design]",
               "RelativeToolTip": "Server\\Server.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-05T14:13:30.062Z"

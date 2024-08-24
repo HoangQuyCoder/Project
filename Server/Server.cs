@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO.Compression;
 
 namespace ScreenSharingServer
 {
@@ -19,6 +20,7 @@ namespace ScreenSharingServer
         private bool isRunning;
         private Dictionary<IPEndPoint, PictureBox> clientPictureBoxes;
         private Dictionary<IPEndPoint, Label> clientLabels;
+
         public ServerForm()
         {
             InitializeComponent();
@@ -53,7 +55,7 @@ namespace ScreenSharingServer
 
                 btn_Start.Enabled = false;
                 btn_Stop.Enabled = true;
-                txt_IP.Enabled = false; 
+                txt_IP.Enabled = false;
                 txt_PORT.Enabled = false;
                 MessageBox.Show("Server started. Waiting for clients...");
             }
@@ -98,22 +100,36 @@ namespace ScreenSharingServer
             try
             {
                 List<byte[]> imageChunks = new List<byte[]>();
+                int clientId = 0; // Biến để lưu trữ `clientId`
 
                 while (isRunning)
                 {
                     byte[] receivedData = udpServer.Receive(ref clientEndPoint);
-                    string receivedText = Encoding.ASCII.GetString(receivedData);
 
+                    if (receivedData.Length < 4)
+                    {
+                        // MessageBox.Show("Received data is too short to contain clientId.");
+                        continue; // Bỏ qua lần lặp này nếu dữ liệu nhận được quá ngắn
+                    }
+
+                    if (imageChunks.Count == 0)
+                    {
+                        // Lấy `clientId` từ gói dữ liệu đầu tiên
+                        clientId = BitConverter.ToInt32(receivedData, 0);
+                        Console.WriteLine($"Received clientId: {clientId}");
+                    }
+
+                    string receivedText = Encoding.ASCII.GetString(receivedData);
                     if (receivedText == "STOP_SHARING")
                     {
                         ClearImage(clientEndPoint);
-                        imageChunks.Clear(); // Clear any partial image data
+                        imageChunks.Clear(); // Xóa dữ liệu hình ảnh chưa hoàn chỉnh
                         continue;
                     }
 
                     if (receivedText == "PING")
                     {
-                        // Send back a "PONG" response
+                        // Gửi lại thông báo "PONG"
                         byte[] pongMessage = Encoding.ASCII.GetBytes("PONG");
                         udpServer.Send(pongMessage, pongMessage.Length, clientEndPoint);
                     }
@@ -121,19 +137,21 @@ namespace ScreenSharingServer
                     {
                         if (IsEndOfImageChunk(receivedData))
                         {
-                            ProcessImage(imageChunks);
-                            imageChunks.Clear(); // Clear chunks after processing the image
+                            // Xử lý hình ảnh khi kết thúc một chuỗi dữ liệu hình ảnh
+                            ProcessImage(imageChunks, clientId);
+                            imageChunks.Clear(); // Xóa danh sách sau khi xử lý hình ảnh
                         }
                         else
                         {
-                            imageChunks.Add(receivedData);
+                            // Bỏ qua 4 byte đầu tiên (chứa `clientId`) trước khi thêm vào danh sách
+                            imageChunks.Add(receivedData.Skip(4).ToArray());
                         }
                     }
                 }
             }
             catch (SocketException)
             {
-                if (udpServer == null) return; // Server was closed
+                if (udpServer == null) return; // Server đã đóng
             }
             catch (Exception ex)
             {
@@ -141,33 +159,66 @@ namespace ScreenSharingServer
             }
         }
 
-        private void ProcessImage(List<byte[]> imageChunks)
+
+        private void ProcessImage(List<byte[]> imageChunks, int clientId)
         {
             try
             {
-                byte[] imageData = imageChunks.SelectMany(a => a).ToArray();
+                // Ghép nối các mảnh dữ liệu, bỏ qua `clientId`
+                byte[] compressedData = imageChunks.SelectMany(a => a.Skip(4)).ToArray(); // Skip first 4 bytes (clientId)
 
-                using (MemoryStream ms = new MemoryStream(imageData))
+                // Kiểm tra xem dữ liệu có hợp lệ không
+                if (compressedData.Length < 4)
                 {
-                    Image img = Image.FromStream(ms);
-                    if (flowLayoutPanel.InvokeRequired)
+                    throw new InvalidDataException("Received data is too short to decode.");
+                }
+
+                using (MemoryStream compressedStream = new MemoryStream(compressedData))
+                {
+                    using (GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
                     {
-                        flowLayoutPanel.Invoke(new Action(() => UpdateClientImage(clientEndPoint, img)));
-                    }
-                    else
-                    {
-                        UpdateClientImage(clientEndPoint, img);
+                        using (MemoryStream decompressedStream = new MemoryStream())
+                        {
+                            gzipStream.CopyTo(decompressedStream);
+                            byte[] imageData = decompressedStream.ToArray();
+
+                            // Kiểm tra xem dữ liệu ảnh đã giải nén có hợp lệ không
+                            if (imageData.Length == 0)
+                            {
+                                throw new InvalidDataException("Decompressed image data is empty.");
+                            }
+
+                            using (MemoryStream ms = new MemoryStream(imageData))
+                            {
+                                Image img = Image.FromStream(ms);
+                                // Kiểm tra hình ảnh có hợp lệ hay không (có thể kiểm tra kích thước tối thiểu)
+                                if (img.Width == 0 || img.Height == 0)
+                                {
+                                    throw new InvalidDataException("Invalid image dimensions.");
+                                }
+                                UpdateClientImage(clientEndPoint, img);
+                            }
+                        }
                     }
                 }
             }
+            catch (InvalidDataException ex)
+            {
+                MessageBox.Show($"Error processing image from client {clientId}: {ex.Message}");
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Error processing image: " + ex.Message);
+                MessageBox.Show($"Error processing image from client {clientId}: {ex.Message}");
             }
         }
 
         private void UpdateClientImage(IPEndPoint clientEndPoint, Image img)
         {
+            if (flowLayoutPanel.InvokeRequired)
+            {
+                flowLayoutPanel.Invoke(new Action(() => UpdateClientImage(clientEndPoint, img)));
+                return;
+            }
             PictureBox clientPictureBox;
 
             // Check PictureBox client
@@ -180,7 +231,7 @@ namespace ScreenSharingServer
                     Margin = new Padding(10)
                 };
 
-                clientPictureBox.Size = GetScaledImageSize(img.Size, clientPictureBox.Size);
+                //clientPictureBox.Size = GetScaledImageSize(img.Size, clientPictureBox.Size);
                 flowLayoutPanel.Controls.Add(clientPictureBox);
                 clientPictureBoxes[clientEndPoint] = clientPictureBox;
 

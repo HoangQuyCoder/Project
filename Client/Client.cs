@@ -7,6 +7,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
+using System.IO.Compression;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ScreenSharingClient
 {
@@ -16,6 +20,9 @@ namespace ScreenSharingClient
         private IPEndPoint serverEndPoint;
         private Thread screenSharingThread;
         private bool isSharing;
+        private List<int> clientIds = new List<int>();
+        private int clientId;
+        private int nextClientId = 1; // Bắt đầu từ 1
 
         public ClientForm()
         {
@@ -49,12 +56,13 @@ namespace ScreenSharingClient
                 if (udpClient != null && screenSharingThread == null)
                 {
                     isSharing = true;
+
                     screenSharingThread = new Thread(() =>
                     {
                         while (isSharing)
                         {
-                            SendScreenshot();
-                            Thread.Sleep(500); // Sleep for half a second between screenshots
+                            Task.Run(() => SendScreenshot(clientId));
+                            Thread.Sleep(100); 
                         }
                     });
                     screenSharingThread.IsBackground = true;
@@ -70,7 +78,6 @@ namespace ScreenSharingClient
                 MessageBox.Show("Error starting screen sharing: " + ex.Message);
             }
         }
-
         private void StopSharing()
         {
             try
@@ -97,22 +104,52 @@ namespace ScreenSharingClient
             }
         }
 
-
         private void ConnectClient()
         {
             try
             {
-                string ip = txt_IP.Text;
-                int port = int.Parse(txt_PORT.Text);
-                serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-                udpClient = new UdpClient();
+                // Kiểm tra và lấy giá trị IP và PORT
+                if (txt_IP == null || txt_PORT == null)
+                {
+                    MessageBox.Show("IP or Port controls are not initialized.");
+                    return;
+                }
 
-                // Send a "PING" message to the server
+                string ip = txt_IP.Text;
+                if (!int.TryParse(txt_PORT.Text, out int port))
+                {
+                    MessageBox.Show("Invalid port number.");
+                    return;
+                }
+
+                // Khởi tạo serverEndPoint
+                serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                clientId = nextClientId++;
+                clientIds.Add(clientId);
+
+                // Khởi tạo UdpClient nếu chưa được khởi tạo
+                if (udpClient == null)
+                {
+                    udpClient = new UdpClient();
+                }
+
+                // Gửi thông điệp "PING" đến server
                 byte[] pingMessage = Encoding.ASCII.GetBytes("PING");
                 udpClient.Send(pingMessage, pingMessage.Length, serverEndPoint);
 
-                // Set a timeout for receiving the response
-                udpClient.Client.ReceiveTimeout = 2000; // 2 seconds
+                // Lấy port mà UdpClient đang sử dụng
+                if (udpClient.Client.LocalEndPoint != null)
+                {
+                    int localPort = ((IPEndPoint)udpClient.Client.LocalEndPoint).Port;
+                    lblPort.Text = $"Your Port: {localPort}"; // Cập nhật lblPort trên form
+                }
+                else
+                {
+                    MessageBox.Show("LocalEndPoint is not initialized.");
+                }
+
+                // Thiết lập timeout cho việc nhận phản hồi
+                udpClient.Client.ReceiveTimeout = 2000;
 
                 try
                 {
@@ -173,49 +210,91 @@ namespace ScreenSharingClient
             }
         }
 
-        private void SendScreenshot()
+        private void SendScreenshot(int clientId)
         {
             try
-            {          
-                using (Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
+            {
+                using (Bitmap bmp = new Bitmap(1920, 1080))
                 {
                     using (Graphics g = Graphics.FromImage(bmp))
                     {
-                         g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, new Size(bmp.Width,bmp.Height));
+                        g.CopyFromScreen(0, 0, 0, 0, new Size(bmp.Width, bmp.Height));
                     }
 
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        bmp.Save(ms, ImageFormat.Jpeg);
+                        var jpegEncoder = GetEncoder(ImageFormat.Jpeg);
+                        var encoderParameters = new EncoderParameters(1);
+                        encoderParameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 75L);
+                        bmp.Save(ms, jpegEncoder, encoderParameters);
+
                         byte[] buffer = ms.ToArray();
 
-                        int chunkSize = 65000;
-                        int totalChunks = (int)Math.Ceiling((double)buffer.Length / chunkSize);
-
-                        for (int i = 0; i < totalChunks; i++)
+                        // Compress data
+                        using (var compressedStream = new MemoryStream())
                         {
-                            int currentChunkSize = Math.Min(chunkSize, buffer.Length - (i * chunkSize));
-                            byte[] chunkData = new byte[currentChunkSize];
-                            Array.Copy(buffer, i * chunkSize, chunkData, 0, currentChunkSize);
+                            using (var gzipStream = new GZipStream(compressedStream, CompressionMode.Compress))
+                            {
+                                gzipStream.Write(buffer, 0, buffer.Length);
+                            }
+                            byte[] compressedData = compressedStream.ToArray();
 
-                            udpClient.Send(chunkData, chunkData.Length, serverEndPoint);
+                            int chunkSize = 65000 - 8; // Reduced chunk size to accommodate clientId and sequence number
+                            int totalChunks = (int)Math.Ceiling((double)compressedData.Length / chunkSize);
+
+                            for (int i = 0; i < totalChunks; i++)
+                            {
+                                int currentChunkSize = Math.Min(chunkSize, compressedData.Length - (i * chunkSize));
+                                byte[] chunkData = new byte[currentChunkSize + 8];
+
+                                // Prepend clientId and sequence number
+                                BitConverter.GetBytes(clientId).CopyTo(chunkData, 0);
+                                BitConverter.GetBytes(i).CopyTo(chunkData, 4);
+                                Array.Copy(compressedData, i * chunkSize, chunkData, 8, currentChunkSize);
+
+                                udpClient.Send(chunkData, chunkData.Length, serverEndPoint);
+                            }
+
+                            // Send end marker
+                            byte[] endMarker = Encoding.ASCII.GetBytes("END_OF_IMAGE");
+                            udpClient.Send(endMarker, endMarker.Length, serverEndPoint);
+
+                            Thread.Sleep(10);
                         }
-
-                        byte[] endMarker = Encoding.ASCII.GetBytes("END_OF_IMAGE");
-                        udpClient.Send(endMarker, endMarker.Length, serverEndPoint);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error sending screenshot: " + ex.Message);
+                MessageBox.Show($"An error occurred: {ex.Message}");
             }
         }
+
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+
+
 
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             StopSharing(); // Stop sharing if it is running
             DisconnectClient(); // Disconnect the client
+        }
+
+        private void lblPort_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
